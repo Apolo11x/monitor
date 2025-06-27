@@ -1,35 +1,19 @@
 <?php
-$host = 'localhost';
-$user = 'root';
-$pass = '1002958401';
-$db = 'servicios_web';
+$pdo = new PDO("mysql:host=localhost;dbname=servicios_web", "root", "1002958401");
 
-$conn = new mysqli($host, $user, $pass, $db);
-
-if ($conn->connect_error) {
-  die("Error de conexión: " . $conn->connect_error);
-}
-
+// Recibe datos del formulario
 $titulo = $_POST['titulo'];
 $url = $_POST['url'];
-$movible = $_POST['movible'];
-$minimizable = $_POST['minimizable'];
-$flotante = $_POST['flotante'];
-$top = isset($_POST['top']) ? (int)$_POST['top'] : 100;
-$left = isset($_POST['left']) ? (int)$_POST['left'] : 80;
+$movible = $_POST['movible'] === 'si' ? 1 : 0;
+$minimizable = $_POST['minimizable'] === 'si' ? 1 : 0;
+$flotante = $_POST['flotante'] === 'si' ? 1 : 0;
+$top = intval($_POST['top']);
+$left = intval($_POST['left']);
 
-$sql = "INSERT INTO ventanas (titulo, url, movible, minimizable, flotante, top, posicion_left)
-        VALUES (?, ?, ?, ?, ?, ?, ?)";
-$stmt = $conn->prepare($sql);
-$stmt->bind_param("sssssss", $titulo, $url, $movible, $minimizable, $flotante, $top, $left);
-$stmt->execute();
-
-if ($stmt->affected_rows > 0) {
+$stmt = $pdo->prepare("INSERT INTO ventanas (titulo, url, movible, minimizable, flotante, top, `left`) VALUES (?, ?, ?, ?, ?, ?, ?)");
+if ($stmt->execute([$titulo, $url, $movible, $minimizable, $flotante, $top, $left])) {
   echo "ok";
 } else {
   echo "error";
 }
-
-$stmt->close();
-$conn->close();
 ?>

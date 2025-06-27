@@ -359,8 +359,7 @@ modal.style.display = 'none';
       `;
       document.body.appendChild(win);
 
-      //Listado de ventanas 
- 
+    
       // Movimiento
       const titleBar = win.querySelector('.title-bar');
       if (movible === 'si') {
