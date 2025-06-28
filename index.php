@@ -211,7 +211,7 @@
 <body>
   <header>
     <img src="https://sedcauca.gov.co/wp-content/uploads/2024/10/Logo-WEB-SECRETARI.jpg" alt="Gobernación del Cauca" />
-    <h1>Servicios Web Integrados</h1>
+    <h1>Monitor de Servicios Web Integrados</h1>
   </header>
 
   <iframe id="glpi-background" src="http://172.19.0.214/glpi" title="GLPI"></iframe>

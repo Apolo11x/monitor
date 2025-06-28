@@ -1,6 +1,7 @@
 <?php
-$pdo = new PDO("mysql:host=localhost;dbname=servicios_web", "root", "1002958401");
+require 'config.php'; 
 
+$pdo = new PDO("mysql:host=$db_host;dbname=$db_name", $db_user, $db_pass);
 // Recibe datos del formulario
 $titulo = $_POST['titulo'];
 $url = $_POST['url'];

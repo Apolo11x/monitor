@@ -1,6 +1,6 @@
-CREATE DATABASE  servicios_web;
+CREATE DATABASE  monitorWeb;
 
-USE servicios_web;
+USE monitorWeb;
 
 CREATE TABLE IF NOT EXISTS ventanas (
     id INT AUTO_INCREMENT PRIMARY KEY,
