@@ -47,7 +47,6 @@
             z-index: 999;
             box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
             border-radius: 8px;
-            transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
             will-change: transform, top, left, width, height;
             user-select: none;
             touch-action: none;
@@ -137,15 +136,15 @@
             position: absolute;
             bottom: 0;
             right: 0;
-            width: 24px;
-            height: 24px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%236b7280" viewBox="0 0 24 24"><path d="M20 20h-4v-4h1.5v2.5H20V20z"/></svg>');
+            width: 28px;
+            height: 28px;
+            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%2328a745" viewBox="0 0 24 24"><path d="M20 20h-4v-4h1.5v2.5H20V20z"/></svg>');
             background-repeat: no-repeat;
             background-position: bottom right;
             cursor: nwse-resize;
             z-index: 100;
-            opacity: 0.5;
-            transition: opacity 0.2s ease;
+            opacity: 1;
+
         }
 
         .window-resizer:hover {
@@ -333,7 +332,6 @@
             height: 100%;
             border: none;
             z-index: 0;
-            pointer-events: none;
         }
     </style>
 </head>
