@@ -341,14 +341,14 @@
         <h1>Servicios Web Integrados</h1>
     </header>
 
-    <iframe id="glpi-background" src="http://172.19.0.214/glpi" title="Fondo GLPI" loading="lazy" sandbox="allow-scripts allow-same-origin"></iframe>
+    <iframe id="glpi-background" src="http://172.19.0.214/glpi" title="Fondo GLPI" loading="lazy"></iframe>
 
     <div class="fixed bottom-10 left-10 z-40 flex space-x-6">
         <button id="new-window-btn" aria-label="Abrir formulario para crear nueva ventana">
             <i class="fas fa-plus-circle mr-3"></i>Nueva Ventana
         </button>
         <button id="impresoras-btn" aria-label="Abrir Impresoras Educauca en una nueva pestaña">
-            <i class="fas fa-print mr-3"></i>Impresoras Educauca
+            <i class="fas fa-print mr-3"></i>Impresoras Sedcauca
         </button>
     </div>
 
