@@ -131,24 +131,88 @@
             display: block;
         }
 
-        /* Redimensionador */
+        /* Redimensionadores */
         .window-resizer {
             position: absolute;
-            bottom: 0;
-            right: 0;
-            width: 28px;
-            height: 28px;
-            background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" fill="%2328a745" viewBox="0 0 24 24"><path d="M20 20h-4v-4h1.5v2.5H20V20z"/></svg>');
-            background-repeat: no-repeat;
-            background-position: bottom right;
-            cursor: nwse-resize;
             z-index: 100;
-            opacity: 1;
-
+            opacity: 0.7;
+            transition: opacity 0.2s ease;
+            background: var(--accent-green);
         }
 
         .window-resizer:hover {
             opacity: 1;
+            background: var(--light-blue);
+        }
+
+        /* Esquinas */
+        .resizer-nw {
+            top: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            cursor: nw-resize;
+            border-bottom-right-radius: 8px;
+        }
+
+        .resizer-ne {
+            top: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            cursor: ne-resize;
+            border-bottom-left-radius: 8px;
+        }
+
+        .resizer-sw {
+            bottom: 0;
+            left: 0;
+            width: 12px;
+            height: 12px;
+            cursor: sw-resize;
+            border-top-right-radius: 8px;
+        }
+
+        .resizer-se {
+            bottom: 0;
+            right: 0;
+            width: 12px;
+            height: 12px;
+            cursor: se-resize;
+            border-top-left-radius: 8px;
+        }
+
+        /* Bordes */
+        .resizer-n {
+            top: 0;
+            left: 12px;
+            right: 12px;
+            height: 6px;
+            cursor: n-resize;
+        }
+
+        .resizer-s {
+            bottom: 0;
+            left: 12px;
+            right: 12px;
+            height: 6px;
+            cursor: s-resize;
+        }
+
+        .resizer-w {
+            top: 12px;
+            bottom: 12px;
+            left: 0;
+            width: 6px;
+            cursor: w-resize;
+        }
+
+        .resizer-e {
+            top: 12px;
+            bottom: 12px;
+            right: 0;
+            width: 6px;
+            cursor: e-resize;
         }
 
         /* Botones de restauración */
@@ -252,7 +316,7 @@
         }
 
         /* Botones principales */
-        #new-window-btn, #impresoras-btn {
+        #new-window-btn, #impresoras-btn, #glpi-test-btn {
             padding: 1rem 2rem;
             border-radius: 50px;
             font-weight: 600;
@@ -279,6 +343,15 @@
         }
         #impresoras-btn:hover {
             background-color: #218838;
+            transform: translateY(-2px) scale(1.05);
+            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+        }
+        #glpi-test-btn {
+            background-color: var(--accent-red);
+            color: white;
+        }
+        #glpi-test-btn:hover {
+            background-color: #c82333;
             transform: translateY(-2px) scale(1.05);
             box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
         }
@@ -341,7 +414,7 @@
         <h1>Servicios Web Integrados</h1>
     </header>
 
-    <iframe id="glpi-background" src="http://172.19.0.214/glpi" title="Fondo GLPI" loading="lazy"></iframe>
+    <iframe id="glpi-background" src="http://172.19.0.214/glpi" title="Fondo GLPI" loading="lazy" onerror="handleGlpiError()"></iframe>
 
     <div class="fixed bottom-10 left-10 z-40 flex space-x-6">
         <button id="new-window-btn" aria-label="Abrir formulario para crear nueva ventana">
@@ -349,6 +422,9 @@
         </button>
         <button id="impresoras-btn" aria-label="Abrir Impresoras Educauca en una nueva pestaña">
             <i class="fas fa-print mr-3"></i>Impresoras Sedcauca
+        </button>
+        <button id="glpi-test-btn" aria-label="Probar conexión GLPI" style="display: none;">
+            <i class="fas fa-network-wired mr-3"></i>Probar GLPI
         </button>
     </div>
 
@@ -412,6 +488,73 @@
         const createBtn = document.getElementById('modal-create-btn');
         const minimizedWindowsContainer = document.getElementById('minimized-windows-container');
 
+        // Función para manejar errores de GLPI
+        function handleGlpiError() {
+            const glpiIframe = document.getElementById('glpi-background');
+            const glpiTestBtn = document.getElementById('glpi-test-btn');
+            if (glpiIframe) {
+                glpiIframe.style.display = 'none';
+                document.body.style.background = 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)';
+                if (glpiTestBtn) {
+                    glpiTestBtn.style.display = 'inline-flex';
+                }
+                console.warn('No se pudo cargar GLPI. Verifica la conexión de red o la URL del servidor.');
+            }
+        }
+
+        // Función para probar conexión GLPI
+        function testGlpiConnection() {
+            const glpiIframe = document.getElementById('glpi-background');
+            const glpiTestBtn = document.getElementById('glpi-test-btn');
+            
+            if (glpiTestBtn) {
+                glpiTestBtn.innerHTML = '<i class="fas fa-spinner fa-spin mr-3"></i>Probando...';
+                glpiTestBtn.disabled = true;
+            }
+
+            // Crear un nuevo iframe para probar la conexión
+            const testIframe = document.createElement('iframe');
+            testIframe.style.display = 'none';
+            testIframe.src = 'http://172.19.0.214/glpi';
+            
+            testIframe.onload = () => {
+                if (glpiIframe) {
+                    glpiIframe.style.display = 'block';
+                    document.body.style.background = '';
+                }
+                if (glpiTestBtn) {
+                    glpiTestBtn.style.display = 'none';
+                }
+                testIframe.remove();
+                console.log('Conexión GLPI restaurada');
+            };
+            
+            testIframe.onerror = () => {
+                if (glpiTestBtn) {
+                    glpiTestBtn.innerHTML = '<i class="fas fa-network-wired mr-3"></i>Probar GLPI';
+                    glpiTestBtn.disabled = false;
+                }
+                testIframe.remove();
+                alert('No se pudo conectar con GLPI. Verifica que el servidor esté funcionando y la URL sea correcta.');
+            };
+            
+            document.body.appendChild(testIframe);
+        }
+
+        // Verificar conexión GLPI después de 5 segundos
+        setTimeout(() => {
+            const glpiIframe = document.getElementById('glpi-background');
+            try {
+                // Intentar acceder al contenido del iframe para verificar si cargó
+                if (glpiIframe && glpiIframe.contentDocument === null) {
+                    handleGlpiError();
+                }
+            } catch (e) {
+                // Error de CORS es normal, significa que el iframe está cargando
+                console.log('GLPI cargando correctamente (CORS normal)');
+            }
+        }, 5000);
+
         // Funciones de actualización de posición y tamaño
         const updateWindowPosition = (event) => {
             if (!windowState.isDragging || !windowState.activeWindow) return;
@@ -440,12 +583,67 @@
 
             const clientX = event.touches?.[0]?.clientX ?? event.clientX;
             const clientY = event.touches?.[0]?.clientY ?? event.clientY;
+            const win = windowState.activeWindow;
+            const resizeType = windowState.resizeType;
 
-            const newWidth = Math.max(320, windowState.startWidth + (clientX - windowState.startX));
-            const newHeight = Math.max(200, windowState.startHeight + (clientY - windowState.startY));
+            let newWidth = win.offsetWidth;
+            let newHeight = win.offsetHeight;
+            let newLeft = win.offsetLeft;
+            let newTop = win.offsetTop;
 
-            windowState.activeWindow.style.width = `${newWidth}px`;
-            windowState.activeWindow.style.height = `${newHeight}px`;
+            const deltaX = clientX - windowState.startX;
+            const deltaY = clientY - windowState.startY;
+
+            // Aplicar redimensionamiento según el tipo
+            switch (resizeType) {
+                case 'nw': // Esquina superior izquierda
+                    newWidth = Math.max(320, windowState.startWidth - deltaX);
+                    newHeight = Math.max(200, windowState.startHeight - deltaY);
+                    newLeft = Math.max(0, windowState.startLeft + deltaX);
+                    newTop = Math.max(0, windowState.startTop + deltaY);
+                    break;
+                case 'ne': // Esquina superior derecha
+                    newWidth = Math.max(320, windowState.startWidth + deltaX);
+                    newHeight = Math.max(200, windowState.startHeight - deltaY);
+                    newTop = Math.max(0, windowState.startTop + deltaY);
+                    break;
+                case 'sw': // Esquina inferior izquierda
+                    newWidth = Math.max(320, windowState.startWidth - deltaX);
+                    newHeight = Math.max(200, windowState.startHeight + deltaY);
+                    newLeft = Math.max(0, windowState.startLeft + deltaX);
+                    break;
+                case 'se': // Esquina inferior derecha
+                    newWidth = Math.max(320, windowState.startWidth + deltaX);
+                    newHeight = Math.max(200, windowState.startHeight + deltaY);
+                    break;
+                case 'n': // Borde superior
+                    newHeight = Math.max(200, windowState.startHeight - deltaY);
+                    newTop = Math.max(0, windowState.startTop + deltaY);
+                    break;
+                case 's': // Borde inferior
+                    newHeight = Math.max(200, windowState.startHeight + deltaY);
+                    break;
+                case 'w': // Borde izquierdo
+                    newWidth = Math.max(320, windowState.startWidth - deltaX);
+                    newLeft = Math.max(0, windowState.startLeft + deltaX);
+                    break;
+                case 'e': // Borde derecho
+                    newWidth = Math.max(320, windowState.startWidth + deltaX);
+                    break;
+            }
+
+            // Aplicar límites de pantalla
+            if (newLeft + newWidth > window.innerWidth) {
+                newWidth = window.innerWidth - newLeft;
+            }
+            if (newTop + newHeight > window.innerHeight) {
+                newHeight = window.innerHeight - newTop;
+            }
+
+            win.style.width = `${newWidth}px`;
+            win.style.height = `${newHeight}px`;
+            win.style.left = `${newLeft}px`;
+            win.style.top = `${newTop}px`;
         };
 
         const animateWindow = (event) => {
@@ -455,7 +653,7 @@
         };
 
         // Manejo de interacciones
-        const startInteraction = (e, win, type) => {
+        const startInteraction = (e, win, type, resizeType = null) => {
             if (type === 'drag' && e.target.closest('.window-btn')) return;
 
             windowState.activeWindow = win;
@@ -475,11 +673,20 @@
                 win.classList.add('dragging');
             } else if (type === 'resize') {
                 windowState.isResizing = true;
+                windowState.resizeType = resizeType;
                 windowState.startX = clientX;
                 windowState.startY = clientY;
                 windowState.startWidth = win.offsetWidth;
                 windowState.startHeight = win.offsetHeight;
-                document.body.style.cursor = 'nwse-resize';
+                windowState.startLeft = win.offsetLeft;
+                windowState.startTop = win.offsetTop;
+                
+                // Establecer cursor apropiado
+                const cursorMap = {
+                    'nw': 'nw-resize', 'ne': 'ne-resize', 'sw': 'sw-resize', 'se': 'se-resize',
+                    'n': 'n-resize', 's': 's-resize', 'w': 'w-resize', 'e': 'e-resize'
+                };
+                document.body.style.cursor = cursorMap[resizeType] || 'nwse-resize';
                 document.body.style.userSelect = 'none';
             }
 
@@ -564,7 +771,16 @@
                 <div class="window-content">
                     ${iframeSrc ? `<iframe src="${iframeSrc}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"></iframe>` : iframeContent}
                 </div>
-                ${redimensionable === 'si' ? '<div class="window-resizer" aria-label="Redimensionar ventana"></div>' : ''}
+                ${redimensionable === 'si' ? `
+                    <div class="window-resizer resizer-nw" aria-label="Redimensionar esquina superior izquierda"></div>
+                    <div class="window-resizer resizer-ne" aria-label="Redimensionar esquina superior derecha"></div>
+                    <div class="window-resizer resizer-sw" aria-label="Redimensionar esquina inferior izquierda"></div>
+                    <div class="window-resizer resizer-se" aria-label="Redimensionar esquina inferior derecha"></div>
+                    <div class="window-resizer resizer-n" aria-label="Redimensionar borde superior"></div>
+                    <div class="window-resizer resizer-s" aria-label="Redimensionar borde inferior"></div>
+                    <div class="window-resizer resizer-w" aria-label="Redimensionar borde izquierdo"></div>
+                    <div class="window-resizer resizer-e" aria-label="Redimensionar borde derecho"></div>
+                ` : ''}
             `;
             document.body.appendChild(win);
 
@@ -575,10 +791,20 @@
                 titleBar.addEventListener('touchstart', (e) => startInteraction(e, win, 'drag'), { passive: false });
             }
 
-            const resizer = win.querySelector('.window-resizer');
-            if (resizer && redimensionable === 'si') {
-                resizer.addEventListener('mousedown', (e) => startInteraction(e, win, 'resize'));
-                resizer.addEventListener('touchstart', (e) => startInteraction(e, win, 'resize'), { passive: false });
+            // Event listeners para todos los redimensionadores
+            if (redimensionable === 'si') {
+                const resizers = win.querySelectorAll('.window-resizer');
+                resizers.forEach(resizer => {
+                    const resizeType = resizer.className.split(' ')[1].replace('resizer-', '');
+                    resizer.addEventListener('mousedown', (e) => {
+                        e.stopPropagation();
+                        startInteraction(e, win, 'resize', resizeType);
+                    });
+                    resizer.addEventListener('touchstart', (e) => {
+                        e.stopPropagation();
+                        startInteraction(e, win, 'resize', resizeType);
+                    }, { passive: false });
+                });
             }
 
             const minBtn = win.querySelector('.minimize-btn');
@@ -626,6 +852,9 @@
         impresorasBtn.onclick = () => {
             window.open('https://impresoraseducauca.web.app/', '_blank');
         };
+
+        // Event listener para el botón de prueba GLPI
+        document.getElementById('glpi-test-btn').onclick = testGlpiConnection;
 
         createBtn.onclick = () => {
             const title = document.getElementById('modal-title').value.trim() || 'Nueva Ventana';
