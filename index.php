@@ -135,14 +135,22 @@
         .window-resizer {
             position: absolute;
             z-index: 100;
-            opacity: 0.7;
+            opacity: 0.3;
             transition: opacity 0.2s ease;
-            background: var(--accent-green);
+            background: transparent;
+            border: 1px solid transparent;
         }
 
         .window-resizer:hover {
+            opacity: 0.6;
+            background: rgba(58, 123, 213, 0.2);
+            border-color: var(--light-blue);
+        }
+
+        .window-resizer.resizing {
             opacity: 1;
             background: var(--light-blue);
+            border-color: var(--primary-blue);
         }
 
         /* Esquinas */
@@ -515,7 +523,7 @@
             // Crear un nuevo iframe para probar la conexión
             const testIframe = document.createElement('iframe');
             testIframe.style.display = 'none';
-            testIframe.src = 'http://172.19.0.214/glpi';
+            testIframe.src = 'https:tickets.sedcauca.gov.co';
             
             testIframe.onload = () => {
                 if (glpiIframe) {
@@ -681,6 +689,12 @@
                 windowState.startLeft = win.offsetLeft;
                 windowState.startTop = win.offsetTop;
                 
+                // Agregar clase resizing al redimensionador activo
+                const activeResizer = win.querySelector(`.resizer-${resizeType}`);
+                if (activeResizer) {
+                    activeResizer.classList.add('resizing');
+                }
+                
                 // Establecer cursor apropiado
                 const cursorMap = {
                     'nw': 'nw-resize', 'ne': 'ne-resize', 'sw': 'sw-resize', 'se': 'se-resize',
@@ -698,6 +712,12 @@
                 windowState.activeWindow.classList.remove('dragging');
                 windowState.activeWindow.style.transition = '';
                 windowState.activeWindow.style.willChange = 'auto';
+                
+                // Remover clase resizing de todos los redimensionadores
+                const resizers = windowState.activeWindow.querySelectorAll('.window-resizer');
+                resizers.forEach(resizer => {
+                    resizer.classList.remove('resizing');
+                });
             }
             windowState.isDragging = false;
             windowState.isResizing = false;
