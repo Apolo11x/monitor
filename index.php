@@ -422,7 +422,7 @@
         <h1>Servicios Web Integrados</h1>
     </header>
 
-    <iframe id="glpi-background" src="https:tickets.sedcauca.gov.co" title="Fondo GLPI" loading="lazy" onerror="handleGlpiError()"></iframe>
+    <iframe id="glpi-background" src="https//:tickets.sedcauca.gov.co" title="Fondo GLPI" loading="lazy" onerror="handleGlpiError()"></iframe>
 
     <div class="fixed bottom-10 left-10 z-40 flex space-x-6">
         <button id="new-window-btn" aria-label="Abrir formulario para crear nueva ventana">
@@ -523,7 +523,7 @@
             // Crear un nuevo iframe para probar la conexión
             const testIframe = document.createElement('iframe');
             testIframe.style.display = 'none';
-            testIframe.src = 'https:tickets.sedcauca.gov.co';
+            testIframe.src = 'https//:tickets.sedcauca.gov.co';
             
             testIframe.onload = () => {
                 if (glpiIframe) {
