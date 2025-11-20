@@ -9,432 +9,46 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-
-    <style>
-        :root {
-            --primary-blue: #0056b3;
-            --light-blue: #3a7bd5;
-            --dark-blue: #003366;
-            --accent-green: #28a745;
-            --accent-red: #dc3545;
-            --gray-bg: #f8f9fa;
-            --gray-light: #e5e7eb;
-            --gray-medium: #9ca3af;
-            --gray-dark: #374151;
-            --button-neutral: #6b7280;
-        }
-
-        body {
-            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
-            background-color: var(--gray-bg);
-            overflow: hidden;
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-            color: var(--gray-dark);
-        }
-
-        /* Ventanas */
-        .window {
-            position: absolute;
-            box-sizing: border-box;
-            min-width: 320px;
-            min-height: 200px;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid var(--primary-blue);
-            background: white;
-            z-index: 999;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            border-radius: 8px;
-            will-change: transform, top, left, width, height;
-            user-select: none;
-            touch-action: none;
-        }
-
-        .window.minimized {
-            opacity: 0;
-            transform: translateY(40px) scale(0.85);
-            pointer-events: none;
-            display: none;
-        }
-
-        /* Barra de título */
-        .window-title-bar {
-            background: linear-gradient(to right, var(--primary-blue), var(--dark-blue));
-            color: white;
-            padding: 12px 16px;
-            cursor: grab;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-weight: 500;
-            border-top-left-radius: 8px;
-            border-top-right-radius: 8px;
-            transition: background 0.2s ease;
-        }
-
-        .window-title-bar.dragging {
-            cursor: grabbing;
-            background: var(--dark-blue);
-        }
-
-        /* Controles de ventana */
-        .window-controls {
-            display: flex;
-            gap: 8px;
-        }
-
-        .window-btn {
-            width: 28px;
-            height: 28px;
-            border-radius: 6px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            cursor: pointer;
-            font-size: 12px;
-            color: white;
-            transition: all 0.2s ease;
-            border: none;
-        }
-
-        .minimize-btn {
-            background-color: var(--button-neutral);
-        }
-        .minimize-btn:hover {
-            background-color: #4b5563;
-        }
-
-        .close-btn {
-            background-color: var(--accent-red);
-        }
-        .close-btn:hover {
-            background-color: #c82333;
-        }
-
-        /* Contenido de la ventana */
-        .window-content {
-            flex: 1;
-            width: 100%;
-            height: calc(100% - 52px);
-            overflow: hidden;
-            background-color: white;
-            border-bottom-left-radius: 8px;
-            border-bottom-right-radius: 8px;
-        }
-
-        .window-content iframe {
-            width: 100%;
-            height: 100%;
-            border: none;
-            display: block;
-        }
-
-        /* Redimensionadores */
-        .window-resizer {
-            position: absolute;
-            z-index: 100;
-            opacity: 0.3;
-            transition: opacity 0.2s ease;
-            background: transparent;
-            border: 1px solid transparent;
-        }
-
-        .window-resizer:hover {
-            opacity: 0.6;
-            background: rgba(58, 123, 213, 0.2);
-            border-color: var(--light-blue);
-        }
-
-        .window-resizer.resizing {
-            opacity: 1;
-            background: var(--light-blue);
-            border-color: var(--primary-blue);
-        }
-
-        /* Esquinas */
-        .resizer-nw {
-            top: 0;
-            left: 0;
-            width: 12px;
-            height: 12px;
-            cursor: nw-resize;
-            border-bottom-right-radius: 8px;
-        }
-
-        .resizer-ne {
-            top: 0;
-            right: 0;
-            width: 12px;
-            height: 12px;
-            cursor: ne-resize;
-            border-bottom-left-radius: 8px;
-        }
-
-        .resizer-sw {
-            bottom: 0;
-            left: 0;
-            width: 12px;
-            height: 12px;
-            cursor: sw-resize;
-            border-top-right-radius: 8px;
-        }
-
-        .resizer-se {
-            bottom: 0;
-            right: 0;
-            width: 12px;
-            height: 12px;
-            cursor: se-resize;
-            border-top-left-radius: 8px;
-        }
-
-        /* Bordes */
-        .resizer-n {
-            top: 0;
-            left: 12px;
-            right: 12px;
-            height: 6px;
-            cursor: n-resize;
-        }
-
-        .resizer-s {
-            bottom: 0;
-            left: 12px;
-            right: 12px;
-            height: 6px;
-            cursor: s-resize;
-        }
-
-        .resizer-w {
-            top: 12px;
-            bottom: 12px;
-            left: 0;
-            width: 6px;
-            cursor: w-resize;
-        }
-
-        .resizer-e {
-            top: 12px;
-            bottom: 12px;
-            right: 0;
-            width: 6px;
-            cursor: e-resize;
-        }
-
-        /* Botones de restauración */
-        .restore-btn {
-            padding: 8px 16px;
-            background: rgba(255, 255, 255, 0.15);
-            color: white;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            border-radius: 8px;
-            cursor: pointer;
-            font-size: 0.95em;
-            white-space: nowrap;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s ease;
-            backdrop-filter: blur(4px);
-        }
-        .restore-btn:hover {
-            background: rgba(255, 255, 255, 0.25);
-            transform: translateY(-2px);
-        }
-
-        /* Modal */
-        #modal > div {
-            background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
-            border-radius: 12px;
-            width: 95%;
-            max-width: 550px;
-            border: 1px solid var(--gray-light);
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-            padding: 2rem;
-            animation: fadeInScale 0.3s ease-out forwards;
-        }
-        #modal.hidden > div {
-            animation: fadeOutScale 0.3s ease-in forwards;
-        }
-
-        @keyframes fadeInScale {
-            from { opacity: 0; transform: scale(0.9); }
-            to { opacity: 1; transform: scale(1); }
-        }
-        @keyframes fadeOutScale {
-            from { opacity: 1; transform: scale(1); }
-            to { opacity: 0; transform: scale(0.9); }
-        }
-
-        #modal h3 {
-            color: var(--dark-blue);
-            font-size: 1.5rem;
-            font-weight: 600;
-            margin-bottom: 1.5rem;
-            padding-bottom: 1rem;
-            border-bottom: 1px solid var(--gray-light);
-        }
-
-        #modal label {
-            display: block;
-            margin-bottom: 1.5rem;
-            color: var(--gray-dark);
-            font-weight: 500;
-            font-size: 1.1rem;
-        }
-
-        #modal input, #modal select {
-            width: 100%;
-            padding: 1rem;
-            border: 1px solid var(--gray-light);
-            border-radius: 12px;
-            font-size: 1rem;
-            margin-top: 0.5rem;
-            transition: all 0.2s ease;
-        }
-        #modal input:focus, #modal select:focus {
-            outline: none;
-            border-color: var(--light-blue);
-            box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.25);
-        }
-
-        #modal button {
-            padding: 0.875rem 1.75rem;
-            border-radius: 12px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.2s ease;
-            cursor: pointer;
-        }
-        #modal button:first-of-type {
-            background-color: var(--gray-light);
-            color: var(--gray-dark);
-        }
-        #modal button:first-of-type:hover {
-            background-color: var(--gray-medium);
-        }
-        #modal button:last-child {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-        #modal button:last-child:hover {
-            background-color: var(--dark-blue);
-        }
-
-        /* Botones principales */
-        #new-window-btn, #impresoras-btn, #glpi-test-btn {
-            padding: 1rem 2rem;
-            border-radius: 50px;
-            font-weight: 600;
-            font-size: 1.1rem;
-            transition: all 0.3s ease;
-            box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-            display: inline-flex;
-            align-items: center;
-            border: none;
-            cursor: pointer;
-        }
-        #new-window-btn {
-            background-color: var(--primary-blue);
-            color: white;
-        }
-        #new-window-btn:hover {
-            background-color: var(--light-blue);
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        #impresoras-btn {
-            background-color: var(--accent-green);
-            color: white;
-        }
-        #impresoras-btn:hover {
-            background-color: #218838;
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-        #glpi-test-btn {
-            background-color: var(--accent-red);
-            color: white;
-        }
-        #glpi-test-btn:hover {
-            background-color: #c82333;
-            transform: translateY(-2px) scale(1.05);
-            box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        }
-
-        /* Contenedor de ventanas minimizadas */
-        #minimized-windows-container {
-            position: fixed;
-            bottom: 1rem;
-            left: 50%;
-            transform: translateX(-50%);
-            display: flex;
-            gap: 0.75rem;
-            padding: 0.75rem;
-            background: rgba(30, 64, 175, 0.9);
-            border-radius: 12px;
-            backdrop-filter: blur(8px);
-            z-index: 40;
-            max-width: 90vw;
-            flex-wrap: wrap;
-            justify-content: center;
-        }
-
-        /* Header */
-        header {
-            background-color: white;
-            color: var(--gray-dark);
-            padding: 1rem;
-            display: flex;
-            align-items: center;
-            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-            position: relative;
-            z-index: 20;
-            border-bottom: 1px solid var(--gray-light);
-        }
-        header img {
-            height: 3.5rem;
-            width: auto;
-            margin-right: 1rem;
-        }
-        header h1 {
-            font-size: 1.75rem;
-            font-weight: 700;
-        }
-
-        /* Fondo GLPI */
-        #glpi-background {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            border: none;
-            z-index: 0;
-        }
-    </style>
+    <link href="css/styles.css" rel="stylesheet">
 </head>
 <body class="bg-gray-100">
     <header>
+        <!-- Botón FAB en el header -->
+        <div id="fab-container" class="fab-container-header">
+            <button id="fab-main-btn" class="fab-main" aria-label="Menú de acciones">
+                <i class="fas fa-bars" id="fab-icon"></i>
+            </button>
+            
+            <!-- Menú desplegable de botones -->
+            <div id="fab-menu" class="fab-menu">
+                <button id="new-window-btn" class="fab-item" aria-label="Abrir formulario para crear nueva ventana" title="Nueva Ventana">
+                    <i class="fas fa-plus-circle"></i>
+                    <span class="fab-label">Nueva Ventana</span>
+                </button>
+                <button id="impresoras-btn" class="fab-item" aria-label="Abrir Impresoras Educauca en una nueva pestaña" title="Impresoras Sedcauca">
+                    <i class="fas fa-print"></i>
+                    <span class="fab-label">Impresoras Sedcauca</span>
+                </button>
+                <button id="ping-cmd-btn" class="fab-item" aria-label="Abrir CMD con ping constante" title="Ping Red">
+                    <i class="fas fa-terminal"></i>
+                    <span class="fab-label">Ping Red</span>
+                </button>
+                <button id="glpi-test-btn" class="fab-item" aria-label="Probar conexión GLPI" title="Probar GLPI" style="display: none;">
+                    <i class="fas fa-network-wired"></i>
+                    <span class="fab-label">Probar GLPI</span>
+                </button>
+            </div>
+        </div>
+        
         <img src="https://sedcauca.gov.co/wp-content/uploads/2024/10/Logo-WEB-SECRETARI.jpg" alt="Logo Gobernación del Cauca">
         <h1>Servicios Web Integrados</h1>
+        
+        <!-- Contenedor de iconos de ventanas -->
+        <div id="windows-tabs-container" class="windows-tabs-container"></div>
     </header>
 
     <iframe id="glpi-background" src="https//:tickets.sedcauca.gov.co" title="Fondo GLPI" loading="lazy" onerror="handleGlpiError()"></iframe>
 
-    <div class="fixed bottom-10 left-10 z-40 flex space-x-6">
-        <button id="new-window-btn" aria-label="Abrir formulario para crear nueva ventana">
-            <i class="fas fa-plus-circle mr-3"></i>Nueva Ventana
-        </button>
-        <button id="impresoras-btn" aria-label="Abrir Impresoras Educauca en una nueva pestaña">
-            <i class="fas fa-print mr-3"></i>Impresoras Sedcauca
-        </button>
-        <button id="glpi-test-btn" aria-label="Probar conexión GLPI" style="display: none;">
-            <i class="fas fa-network-wired mr-3"></i>Probar GLPI
-        </button>
-    </div>
 
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 hidden">
         <div>
@@ -495,6 +109,36 @@
         const impresorasBtn = document.getElementById('impresoras-btn');
         const createBtn = document.getElementById('modal-create-btn');
         const minimizedWindowsContainer = document.getElementById('minimized-windows-container');
+        
+        // Control del menú FAB
+        const fabMainBtn = document.getElementById('fab-main-btn');
+        const fabMenu = document.getElementById('fab-menu');
+        const fabIcon = document.getElementById('fab-icon');
+        let fabMenuOpen = false;
+        
+        fabMainBtn.onclick = (e) => {
+            e.stopPropagation();
+            fabMenuOpen = !fabMenuOpen;
+            if (fabMenuOpen) {
+                fabMenu.classList.add('open');
+                fabIcon.classList.remove('fa-bars');
+                fabIcon.classList.add('fa-times');
+            } else {
+                fabMenu.classList.remove('open');
+                fabIcon.classList.remove('fa-times');
+                fabIcon.classList.add('fa-bars');
+            }
+        };
+        
+        // Cerrar menú al hacer clic fuera
+        document.addEventListener('click', (e) => {
+            if (fabMenuOpen && !fabMainBtn.contains(e.target) && !fabMenu.contains(e.target)) {
+                fabMenuOpen = false;
+                fabMenu.classList.remove('open');
+                fabIcon.classList.remove('fa-times');
+                fabIcon.classList.add('fa-bars');
+            }
+        });
 
         // Función para manejar errores de GLPI
         function handleGlpiError() {
@@ -563,101 +207,132 @@
             }
         }, 5000);
 
-        // Funciones de actualización de posición y tamaño
-        const updateWindowPosition = (event) => {
-            if (!windowState.isDragging || !windowState.activeWindow) return;
-
-            const clientX = event.touches?.[0]?.clientX ?? event.clientX;
-            const clientY = event.touches?.[0]?.clientY ?? event.clientY;
-
+        // Funciones de actualización optimizadas
+        const updateWindowPosition = (clientX, clientY) => {
+            const win = windowState.activeWindow;
             const dx = clientX - windowState.startX;
             const dy = clientY - windowState.startY;
+            const headerHeight = document.querySelector('header').offsetHeight;
 
             const newX = Math.max(0, Math.min(
                 windowState.startLeft + dx, 
-                window.innerWidth - windowState.activeWindow.offsetWidth
+                window.innerWidth - win.offsetWidth
             ));
-            const newY = Math.max(0, Math.min(
+            const newY = Math.max(headerHeight, Math.min(
                 windowState.startTop + dy, 
-                window.innerHeight - windowState.activeWindow.offsetHeight
+                window.innerHeight - win.offsetHeight
             ));
 
-            windowState.activeWindow.style.left = `${newX}px`;
-            windowState.activeWindow.style.top = `${newY}px`;
+            win.style.left = `${newX}px`;
+            win.style.top = `${newY}px`;
         };
 
-        const updateWindowSize = (event) => {
+        const updateWindowSize = (clientX, clientY) => {
             if (!windowState.isResizing || !windowState.activeWindow) return;
-
-            const clientX = event.touches?.[0]?.clientX ?? event.clientX;
-            const clientY = event.touches?.[0]?.clientY ?? event.clientY;
+            
             const win = windowState.activeWindow;
             const resizeType = windowState.resizeType;
-
-            let newWidth = win.offsetWidth;
-            let newHeight = win.offsetHeight;
-            let newLeft = win.offsetLeft;
-            let newTop = win.offsetTop;
-
+            const headerHeight = document.querySelector('header').offsetHeight;
+            const minWidth = 320;
+            const minHeight = 200;
+            
+            // Calcular deltas desde el punto inicial
             const deltaX = clientX - windowState.startX;
             const deltaY = clientY - windowState.startY;
+            
+            // Obtener posición y tamaño actuales desde el estado inicial
+            let newLeft = windowState.startLeft;
+            let newTop = windowState.startTop;
+            let newWidth = windowState.startWidth;
+            let newHeight = windowState.startHeight;
 
-            // Aplicar redimensionamiento según el tipo
+            // Aplicar redimensionamiento según el tipo (similar a ventanas nativas)
             switch (resizeType) {
                 case 'nw': // Esquina superior izquierda
-                    newWidth = Math.max(320, windowState.startWidth - deltaX);
-                    newHeight = Math.max(200, windowState.startHeight - deltaY);
-                    newLeft = Math.max(0, windowState.startLeft + deltaX);
-                    newTop = Math.max(0, windowState.startTop + deltaY);
+                    newWidth = Math.max(minWidth, windowState.startWidth - deltaX);
+                    newHeight = Math.max(minHeight, windowState.startHeight - deltaY);
+                    newLeft = windowState.startLeft + (windowState.startWidth - newWidth);
+                    newTop = windowState.startTop + (windowState.startHeight - newHeight);
                     break;
                 case 'ne': // Esquina superior derecha
-                    newWidth = Math.max(320, windowState.startWidth + deltaX);
-                    newHeight = Math.max(200, windowState.startHeight - deltaY);
-                    newTop = Math.max(0, windowState.startTop + deltaY);
+                    newWidth = Math.max(minWidth, windowState.startWidth + deltaX);
+                    newHeight = Math.max(minHeight, windowState.startHeight - deltaY);
+                    newTop = windowState.startTop + (windowState.startHeight - newHeight);
                     break;
                 case 'sw': // Esquina inferior izquierda
-                    newWidth = Math.max(320, windowState.startWidth - deltaX);
-                    newHeight = Math.max(200, windowState.startHeight + deltaY);
-                    newLeft = Math.max(0, windowState.startLeft + deltaX);
+                    newWidth = Math.max(minWidth, windowState.startWidth - deltaX);
+                    newHeight = Math.max(minHeight, windowState.startHeight + deltaY);
+                    newLeft = windowState.startLeft + (windowState.startWidth - newWidth);
                     break;
                 case 'se': // Esquina inferior derecha
-                    newWidth = Math.max(320, windowState.startWidth + deltaX);
-                    newHeight = Math.max(200, windowState.startHeight + deltaY);
+                    newWidth = Math.max(minWidth, windowState.startWidth + deltaX);
+                    newHeight = Math.max(minHeight, windowState.startHeight + deltaY);
                     break;
                 case 'n': // Borde superior
-                    newHeight = Math.max(200, windowState.startHeight - deltaY);
-                    newTop = Math.max(0, windowState.startTop + deltaY);
+                    newHeight = Math.max(minHeight, windowState.startHeight - deltaY);
+                    newTop = windowState.startTop + (windowState.startHeight - newHeight);
                     break;
                 case 's': // Borde inferior
-                    newHeight = Math.max(200, windowState.startHeight + deltaY);
+                    newHeight = Math.max(minHeight, windowState.startHeight + deltaY);
                     break;
                 case 'w': // Borde izquierdo
-                    newWidth = Math.max(320, windowState.startWidth - deltaX);
-                    newLeft = Math.max(0, windowState.startLeft + deltaX);
+                    newWidth = Math.max(minWidth, windowState.startWidth - deltaX);
+                    newLeft = windowState.startLeft + (windowState.startWidth - newWidth);
                     break;
                 case 'e': // Borde derecho
-                    newWidth = Math.max(320, windowState.startWidth + deltaX);
+                    newWidth = Math.max(minWidth, windowState.startWidth + deltaX);
                     break;
             }
 
             // Aplicar límites de pantalla
-            if (newLeft + newWidth > window.innerWidth) {
-                newWidth = window.innerWidth - newLeft;
+            const maxLeft = window.innerWidth - minWidth;
+            const maxTop = window.innerHeight - minHeight;
+            const maxRight = window.innerWidth;
+            const maxBottom = window.innerHeight;
+
+            // Limitar posición izquierda
+            if (newLeft < 0) {
+                newWidth = newWidth + newLeft;
+                newLeft = 0;
+                if (newWidth < minWidth) {
+                    newWidth = minWidth;
+                    newLeft = 0;
+                }
             }
-            if (newTop + newHeight > window.innerHeight) {
-                newHeight = window.innerHeight - newTop;
+            
+            // Limitar posición superior
+            if (newTop < headerHeight) {
+                newHeight = newHeight + (newTop - headerHeight);
+                newTop = headerHeight;
+                if (newHeight < minHeight) {
+                    newHeight = minHeight;
+                    newTop = headerHeight;
+                }
+            }
+            
+            // Limitar ancho (no exceder el borde derecho)
+            if (newLeft + newWidth > maxRight) {
+                newWidth = maxRight - newLeft;
+                if (newWidth < minWidth) {
+                    newWidth = minWidth;
+                    newLeft = maxRight - minWidth;
+                }
+            }
+            
+            // Limitar alto (no exceder el borde inferior)
+            if (newTop + newHeight > maxBottom) {
+                newHeight = maxBottom - newTop;
+                if (newHeight < minHeight) {
+                    newHeight = minHeight;
+                    newTop = maxBottom - minHeight;
+                }
             }
 
+            // Aplicar cambios directamente - sin transiciones para mejor rendimiento
             win.style.width = `${newWidth}px`;
             win.style.height = `${newHeight}px`;
             win.style.left = `${newLeft}px`;
             win.style.top = `${newTop}px`;
-        };
-
-        const animateWindow = (event) => {
-            if (windowState.isDragging) updateWindowPosition(event);
-            else if (windowState.isResizing) updateWindowSize(event);
-            windowState.animationFrameId = null;
         };
 
         // Manejo de interacciones
@@ -684,10 +359,17 @@
                 windowState.resizeType = resizeType;
                 windowState.startX = clientX;
                 windowState.startY = clientY;
-                windowState.startWidth = win.offsetWidth;
-                windowState.startHeight = win.offsetHeight;
-                windowState.startLeft = win.offsetLeft;
-                windowState.startTop = win.offsetTop;
+                // Capturar valores iniciales usando getBoundingClientRect para precisión
+                const rect = win.getBoundingClientRect();
+                windowState.startWidth = rect.width;
+                windowState.startHeight = rect.height;
+                windowState.startLeft = rect.left;
+                windowState.startTop = rect.top;
+                
+                // Prevenir selección de texto durante el redimensionamiento
+                document.body.style.userSelect = 'none';
+                document.body.style.pointerEvents = 'none';
+                win.style.pointerEvents = 'auto';
                 
                 // Agregar clase resizing al redimensionador activo
                 const activeResizer = win.querySelector(`.resizer-${resizeType}`);
@@ -724,6 +406,7 @@
             windowState.activeWindow = null;
             document.body.style.cursor = '';
             document.body.style.userSelect = '';
+            document.body.style.pointerEvents = '';
 
             if (windowState.animationFrameId) {
                 cancelAnimationFrame(windowState.animationFrameId);
@@ -731,17 +414,36 @@
             }
         };
 
-        // Event listeners
-        document.addEventListener('mousemove', (e) => {
-            if ((windowState.isDragging || windowState.isResizing) && !windowState.animationFrameId) {
-                windowState.animationFrameId = requestAnimationFrame(() => animateWindow(e));
+        // Event listeners optimizados para mejor rendimiento - redimensionamiento fluido
+        let isProcessing = false;
+        
+        const handleMove = (e) => {
+            if (!windowState.isDragging && !windowState.isResizing) return;
+            
+            // Prevenir procesamiento múltiple simultáneo
+            if (isProcessing) return;
+            isProcessing = true;
+            
+            const clientX = e.touches?.[0]?.clientX ?? e.clientX;
+            const clientY = e.touches?.[0]?.clientY ?? e.clientY;
+            
+            // Procesar directamente para máxima responsividad
+            if (windowState.isDragging) {
+                updateWindowPosition(clientX, clientY);
+            } else if (windowState.isResizing) {
+                updateWindowSize(clientX, clientY);
             }
-        });
+            
+            // Usar requestAnimationFrame para el siguiente frame, pero no bloquear
+            requestAnimationFrame(() => {
+                isProcessing = false;
+            });
+        };
 
+        document.addEventListener('mousemove', handleMove, { passive: true });
         document.addEventListener('touchmove', (e) => {
-            if ((windowState.isDragging || windowState.isResizing) && !windowState.animationFrameId) {
-                windowState.animationFrameId = requestAnimationFrame(() => animateWindow(e));
-            }
+            e.preventDefault();
+            handleMove(e);
         }, { passive: false });
 
         document.addEventListener('mouseup', endInteraction);
@@ -765,6 +467,7 @@
 
             let iframeSrc = '';
             let iframeContent = '';
+            let iframeSandbox = 'allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-top-navigation allow-popups-to-escape-sandbox';
 
             if (url.startsWith('http://') || url.startsWith('https://')) {
                 iframeSrc = url;
@@ -780,6 +483,15 @@
                 `;
             }
 
+            // Para sitios de Google y otros que requieren más permisos, usar sandbox más permisivo
+            const googleDomains = ['google.com', 'google.co', 'gmail.com', 'youtube.com', 'googletagmanager.com', 'googleapis.com'];
+            const isGoogleDomain = googleDomains.some(domain => url.toLowerCase().includes(domain));
+            
+            if (isGoogleDomain) {
+                // Para Google, usar sandbox más permisivo o sin sandbox
+                iframeSandbox = 'allow-scripts allow-same-origin allow-popups allow-forms allow-modals allow-top-navigation allow-popups-to-escape-sandbox allow-presentation';
+            }
+
             win.innerHTML = `
                 <div class="window-title-bar" aria-label="Barra de título de la ventana">
                     <span class="font-medium">${title}</span>
@@ -789,7 +501,7 @@
                     </div>
                 </div>
                 <div class="window-content">
-                    ${iframeSrc ? `<iframe src="${iframeSrc}" title="${title}" loading="lazy" sandbox="allow-scripts allow-same-origin allow-popups allow-forms allow-modals"></iframe>` : iframeContent}
+                    ${iframeSrc ? `<iframe src="${iframeSrc}" title="${title}" loading="lazy" sandbox="${iframeSandbox}" referrerpolicy="no-referrer-when-downgrade"></iframe>` : iframeContent}
                 </div>
                 ${redimensionable === 'si' ? `
                     <div class="window-resizer resizer-nw" aria-label="Redimensionar esquina superior izquierda"></div>
@@ -827,6 +539,52 @@
                 });
             }
 
+            // Crear icono de ventana en el header
+            const windowsTabsContainer = document.getElementById('windows-tabs-container');
+            const windowTab = document.createElement('div');
+            windowTab.className = 'window-tab';
+            windowTab.dataset.windowId = win.id;
+            windowTab.setAttribute('aria-label', `Ventana: ${title}`);
+            windowTab.title = title;
+            
+            // Determinar icono según la URL
+            let iconClass = 'fa-window-maximize';
+            if (iframeSrc) {
+                if (iframeSrc.includes('google') || iframeSrc.includes('gmail')) {
+                    iconClass = 'fa-google';
+                } else if (iframeSrc.includes('youtube')) {
+                    iconClass = 'fa-youtube';
+                } else if (iframeSrc.includes('print') || iframeSrc.includes('impresora')) {
+                    iconClass = 'fa-print';
+                } else {
+                    iconClass = 'fa-globe';
+                }
+            }
+            
+            windowTab.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            
+            // Hacer clic en el icono para enfocar la ventana
+            windowTab.onclick = () => {
+                win.style.zIndex = ++zIndexCounter;
+                win.classList.remove('minimized');
+                // Marcar como activo
+                document.querySelectorAll('.window-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                windowTab.classList.add('active');
+                // Remover cualquier botón de restauración asociado
+                const associatedRestoreBtn = minimizedWindowsContainer.querySelector(`[data-window-id="${win.id}"]`);
+                if (associatedRestoreBtn) associatedRestoreBtn.remove();
+            };
+            
+            // Marcar como activo al crear
+            document.querySelectorAll('.window-tab').forEach(tab => {
+                tab.classList.remove('active');
+            });
+            windowTab.classList.add('active');
+            
+            windowsTabsContainer.appendChild(windowTab);
+
             const minBtn = win.querySelector('.minimize-btn');
             if (minBtn) {
                 minBtn.onclick = () => {
@@ -848,12 +606,18 @@
             const closeBtn = win.querySelector('.close-btn');
             closeBtn.onclick = () => {
                 win.remove();
+                windowTab.remove();
                 const associatedRestoreBtn = minimizedWindowsContainer.querySelector(`[data-window-id="${win.id}"]`);
                 if (associatedRestoreBtn) associatedRestoreBtn.remove();
             };
 
             win.addEventListener('mousedown', () => {
                 win.style.zIndex = ++zIndexCounter;
+                // Actualizar icono activo en el header
+                document.querySelectorAll('.window-tab').forEach(tab => {
+                    tab.classList.remove('active');
+                });
+                windowTab.classList.add('active');
             });
 
             return win;
@@ -861,6 +625,12 @@
 
         // Eventos de UI
         newWindowBtn.onclick = () => {
+            // Cerrar menú FAB
+            fabMenuOpen = false;
+            fabMenu.classList.remove('open');
+            fabIcon.classList.remove('fa-times');
+            fabIcon.classList.add('fa-bars');
+            
             modal.classList.remove('hidden');
             document.getElementById('modal-title').value = '';
             document.getElementById('modal-url').value = '';
@@ -870,8 +640,90 @@
         };
 
         impresorasBtn.onclick = () => {
+            // Cerrar menú FAB
+            fabMenuOpen = false;
+            fabMenu.classList.remove('open');
+            fabIcon.classList.remove('fa-times');
+            fabIcon.classList.add('fa-bars');
+            
             window.open('https://impresoraseducauca.web.app/', '_blank');
         };
+
+        // Función para abrir CMD con ping constante
+        function openPingCMD() {
+            // Cerrar menú FAB
+            fabMenuOpen = false;
+            fabMenu.classList.remove('open');
+            fabIcon.classList.remove('fa-times');
+            fabIcon.classList.add('fa-bars');
+            
+            // Mostrar modal para ingresar la IP o dominio
+            const pingModal = document.createElement('div');
+            pingModal.id = 'ping-modal';
+            pingModal.className = 'fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50';
+            pingModal.innerHTML = `
+                <div style="background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%); border-radius: 12px; width: 95%; max-width: 450px; border: 1px solid #e5e7eb; box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15); padding: 2rem;">
+                    <h3 style="color: #003366; font-size: 1.5rem; font-weight: 600; margin-bottom: 1.5rem; padding-bottom: 1rem; border-bottom: 1px solid #e5e7eb;">Ping a Red</h3>
+                    <label style="display: block; margin-bottom: 1.5rem; color: #374151; font-weight: 500; font-size: 1.1rem;">
+                        Dirección IP o Dominio:
+                        <input id="ping-address" type="text" placeholder="Ej: 8.8.8.8 o google.com" style="width: 100%; padding: 1rem; border: 1px solid #e5e7eb; border-radius: 12px; font-size: 1rem; margin-top: 0.5rem;" />
+                    </label>
+                    <div style="text-right mt-8 space-x-4">
+                        <button onclick="document.getElementById('ping-modal').remove()" style="padding: 0.875rem 1.75rem; border-radius: 12px; font-weight: 600; font-size: 1.1rem; background-color: #e5e7eb; color: #374151; border: none; cursor: pointer;">Cancelar</button>
+                        <button id="ping-start-btn" style="padding: 0.875rem 1.75rem; border-radius: 12px; font-weight: 600; font-size: 1.1rem; background-color: #0056b3; color: white; border: none; cursor: pointer;">Iniciar Ping</button>
+                    </div>
+                </div>
+            `;
+            document.body.appendChild(pingModal);
+
+            const startPingBtn = document.getElementById('ping-start-btn');
+            const pingAddressInput = document.getElementById('ping-address');
+
+            startPingBtn.onclick = () => {
+                const address = pingAddressInput.value.trim();
+                if (!address) {
+                    alert('Por favor, ingresa una dirección IP o dominio.');
+                    return;
+                }
+
+                // Crear un archivo batch temporal o usar comando directo
+                // En Windows, podemos usar cmd.exe con el comando ping -t
+                const pingCommand = `cmd.exe /k "ping -t ${address}"`;
+                
+                // Intentar abrir el comando (esto funcionará si el navegador tiene permisos)
+                // Nota: Esto puede requerir configuración del servidor o usar un enfoque diferente
+                
+                // Alternativa: Crear un archivo PHP que ejecute el comando
+                fetch('ping_cmd.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ address: address })
+                }).then(response => {
+                    if (response.ok) {
+                        pingModal.remove();
+                        alert('Comando CMD iniciado. Verifica la ventana de CMD que se abrió.');
+                    } else {
+                        alert('No se pudo abrir el CMD. Verifica los permisos del servidor.');
+                    }
+                }).catch(error => {
+                    console.error('Error:', error);
+                    // Fallback: intentar abrir directamente (puede no funcionar por seguridad del navegador)
+                    alert('No se pudo ejecutar el comando directamente. Por favor, abre CMD manualmente y ejecuta: ping -t ' + address);
+                });
+            };
+
+            // Cerrar modal al hacer clic fuera
+            pingModal.onclick = (e) => {
+                if (e.target === pingModal) {
+                    pingModal.remove();
+                }
+            };
+        }
+
+        // Event listener para el botón de ping
+        document.getElementById('ping-cmd-btn').onclick = openPingCMD;
 
         // Event listener para el botón de prueba GLPI
         document.getElementById('glpi-test-btn').onclick = testGlpiConnection;

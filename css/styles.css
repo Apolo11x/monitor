@@ -1,0 +1,536 @@
+:root {
+    --primary-blue: #0056b3;
+    --light-blue: #3a7bd5;
+    --dark-blue: #003366;
+    --accent-green: #28a745;
+    --accent-red: #dc3545;
+    --gray-bg: #f8f9fa;
+    --gray-light: #e5e7eb;
+    --gray-medium: #9ca3af;
+    --gray-dark: #374151;
+    --button-neutral: #6b7280;
+}
+
+body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background-color: var(--gray-bg);
+    overflow: hidden;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    color: var(--gray-dark);
+}
+
+/* Ventanas */
+.window {
+    position: absolute;
+    box-sizing: border-box;
+    min-width: 320px;
+    min-height: 200px;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    border: 1px solid var(--primary-blue);
+    background: white;
+    z-index: 999;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    border-radius: 8px;
+    will-change: transform, top, left, width, height;
+    user-select: none;
+    touch-action: none;
+}
+
+.window.minimized {
+    opacity: 0;
+    transform: translateY(40px) scale(0.85);
+    pointer-events: none;
+    display: none;
+}
+
+/* Barra de título */
+.window-title-bar {
+    background: linear-gradient(to right, var(--primary-blue), var(--dark-blue));
+    color: white;
+    padding: 12px 16px;
+    cursor: grab;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-weight: 500;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    transition: background 0.2s ease;
+}
+
+.window-title-bar.dragging {
+    cursor: grabbing;
+    background: var(--dark-blue);
+}
+
+/* Controles de ventana */
+.window-controls {
+    display: flex;
+    gap: 8px;
+}
+
+.window-btn {
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    cursor: pointer;
+    font-size: 12px;
+    color: white;
+    transition: all 0.2s ease;
+    border: none;
+}
+
+.minimize-btn {
+    background-color: var(--button-neutral);
+}
+.minimize-btn:hover {
+    background-color: #4b5563;
+}
+
+.close-btn {
+    background-color: var(--accent-red);
+}
+.close-btn:hover {
+    background-color: #c82333;
+}
+
+/* Contenido de la ventana */
+.window-content {
+    flex: 1;
+    width: 100%;
+    height: calc(100% - 52px);
+    overflow: hidden;
+    background-color: white;
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+}
+
+.window-content iframe {
+    width: 100%;
+    height: 100%;
+    border: none;
+    display: block;
+}
+
+/* Redimensionadores */
+.window-resizer {
+    position: absolute;
+    z-index: 100;
+    opacity: 0.3;
+    transition: opacity 0.2s ease;
+    background: transparent;
+    border: 1px solid transparent;
+}
+
+.window-resizer:hover {
+    opacity: 0.6;
+    background: rgba(58, 123, 213, 0.2);
+    border-color: var(--light-blue);
+}
+
+.window-resizer.resizing {
+    opacity: 1;
+    background: var(--light-blue);
+    border-color: var(--primary-blue);
+}
+
+/* Esquinas */
+.resizer-nw {
+    top: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    cursor: nw-resize;
+    border-bottom-right-radius: 8px;
+}
+
+.resizer-ne {
+    top: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    cursor: ne-resize;
+    border-bottom-left-radius: 8px;
+}
+
+.resizer-sw {
+    bottom: 0;
+    left: 0;
+    width: 12px;
+    height: 12px;
+    cursor: sw-resize;
+    border-top-right-radius: 8px;
+}
+
+.resizer-se {
+    bottom: 0;
+    right: 0;
+    width: 12px;
+    height: 12px;
+    cursor: se-resize;
+    border-top-left-radius: 8px;
+}
+
+/* Bordes */
+.resizer-n {
+    top: 0;
+    left: 12px;
+    right: 12px;
+    height: 6px;
+    cursor: n-resize;
+}
+
+.resizer-s {
+    bottom: 0;
+    left: 12px;
+    right: 12px;
+    height: 6px;
+    cursor: s-resize;
+}
+
+.resizer-w {
+    top: 12px;
+    bottom: 12px;
+    left: 0;
+    width: 6px;
+    cursor: w-resize;
+}
+
+.resizer-e {
+    top: 12px;
+    bottom: 12px;
+    right: 0;
+    width: 6px;
+    cursor: e-resize;
+}
+
+/* Botones de restauración */
+.restore-btn {
+    padding: 10px 14px;
+    background: rgba(255, 255, 255, 0.15);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    font-size: 0.9em;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s ease;
+    backdrop-filter: blur(4px);
+    width: 100%;
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.restore-btn:hover {
+    background: rgba(255, 255, 255, 0.25);
+    transform: translateX(-3px);
+}
+
+/* Modal */
+#modal > div {
+    background: linear-gradient(135deg, #ffffff 0%, #f8f9fa 100%);
+    border-radius: 12px;
+    width: 95%;
+    max-width: 550px;
+    border: 1px solid var(--gray-light);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    padding: 2rem;
+    animation: fadeInScale 0.3s ease-out forwards;
+}
+#modal.hidden > div {
+    animation: fadeOutScale 0.3s ease-in forwards;
+}
+
+@keyframes fadeInScale {
+    from { opacity: 0; transform: scale(0.9); }
+    to { opacity: 1; transform: scale(1); }
+}
+@keyframes fadeOutScale {
+    from { opacity: 1; transform: scale(1); }
+    to { opacity: 0; transform: scale(0.9); }
+}
+
+#modal h3 {
+    color: var(--dark-blue);
+    font-size: 1.5rem;
+    font-weight: 600;
+    margin-bottom: 1.5rem;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid var(--gray-light);
+}
+
+#modal label {
+    display: block;
+    margin-bottom: 1.5rem;
+    color: var(--gray-dark);
+    font-weight: 500;
+    font-size: 1.1rem;
+}
+
+#modal input, #modal select {
+    width: 100%;
+    padding: 1rem;
+    border: 1px solid var(--gray-light);
+    border-radius: 12px;
+    font-size: 1rem;
+    margin-top: 0.5rem;
+    transition: all 0.2s ease;
+}
+#modal input:focus, #modal select:focus {
+    outline: none;
+    border-color: var(--light-blue);
+    box-shadow: 0 0 0 3px rgba(58, 123, 213, 0.25);
+}
+
+#modal button {
+    padding: 0.875rem 1.75rem;
+    border-radius: 12px;
+    font-weight: 600;
+    font-size: 1.1rem;
+    transition: all 0.2s ease;
+    cursor: pointer;
+}
+#modal button:first-of-type {
+    background-color: var(--gray-light);
+    color: var(--gray-dark);
+}
+#modal button:first-of-type:hover {
+    background-color: var(--gray-medium);
+}
+#modal button:last-child {
+    background-color: var(--primary-blue);
+    color: white;
+}
+#modal button:last-child:hover {
+    background-color: var(--dark-blue);
+}
+
+/* Los estilos de los botones ahora están en .fab-item dentro del menú FAB */
+
+/* Contenedor de ventanas minimizadas */
+#minimized-windows-container {
+    position: fixed;
+    top: 1rem;
+    right: 1rem;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    background: rgba(30, 64, 175, 0.9);
+    border-radius: 12px;
+    backdrop-filter: blur(8px);
+    z-index: 40;
+    max-height: calc(100vh - 2rem);
+    overflow-y: auto;
+    min-width: 200px;
+}
+
+/* Header */
+header {
+    background-color: white;
+    color: var(--gray-dark);
+    padding: 1rem;
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    position: relative;
+    z-index: 20;
+    border-bottom: 1px solid var(--gray-light);
+}
+header img {
+    height: 3.5rem;
+    width: auto;
+    margin-right: 0;
+}
+header h1 {
+    font-size: 1.75rem;
+    font-weight: 700;
+    flex: 1;
+    margin: 0;
+}
+
+/* FAB en el header */
+.fab-container-header {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.fab-container-header .fab-main {
+    width: 48px;
+    height: 48px;
+    font-size: 1.25rem;
+}
+
+.fab-container-header .fab-menu {
+    bottom: auto;
+    top: 60px;
+    left: 0;
+}
+
+/* Contenedor de iconos de ventanas en el header */
+.windows-tabs-container {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    margin-left: auto;
+    padding-left: 1rem;
+    border-left: 1px solid var(--gray-light);
+    max-width: 50%;
+    overflow-x: auto;
+    overflow-y: hidden;
+}
+
+.window-tab {
+    width: 40px;
+    height: 40px;
+    border-radius: 8px;
+    background: var(--gray-light);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    color: var(--gray-dark);
+    font-size: 1.1rem;
+    flex-shrink: 0;
+    border: 2px solid transparent;
+}
+
+.window-tab:hover {
+    background: var(--light-blue);
+    color: white;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.window-tab.active {
+    background: var(--primary-blue);
+    color: white;
+    border-color: var(--dark-blue);
+}
+
+/* Fondo GLPI */
+#glpi-background {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    border: none;
+    z-index: 0;
+}
+
+/* Botón Flotante (FAB) - Ahora en el header */
+.fab-main {
+    width: 48px;
+    height: 48px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, var(--primary-blue), var(--dark-blue));
+    color: white;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.25rem;
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    z-index: 51;
+}
+
+.fab-main:hover {
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.fab-main:active {
+    transform: scale(0.95);
+}
+
+.fab-menu {
+    position: absolute;
+    bottom: 80px;
+    left: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 1rem;
+    opacity: 0;
+    visibility: hidden;
+    transform: translateY(20px) scale(0.8);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    pointer-events: none;
+}
+
+.fab-menu.open {
+    opacity: 1;
+    visibility: visible;
+    transform: translateY(0) scale(1);
+    pointer-events: all;
+}
+
+.fab-item {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    padding: 0.875rem 1.25rem;
+    background: white;
+    color: var(--gray-dark);
+    border: none;
+    border-radius: 50px;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
+    font-size: 1rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: all 0.2s ease;
+    min-width: 200px;
+    text-align: left;
+}
+
+.fab-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    background: var(--gray-bg);
+}
+
+.fab-item:active {
+    transform: translateX(2px) scale(0.98);
+}
+
+.fab-item i {
+    font-size: 1.25rem;
+    width: 24px;
+    text-align: center;
+}
+
+.fab-item:nth-child(1) i {
+    color: var(--primary-blue);
+}
+
+.fab-item:nth-child(2) i {
+    color: var(--accent-green);
+}
+
+.fab-item:nth-child(3) i {
+    color: #6c757d;
+}
+
+.fab-item:nth-child(4) i {
+    color: var(--accent-red);
+}
+
+.fab-label {
+    flex: 1;
+}
+
