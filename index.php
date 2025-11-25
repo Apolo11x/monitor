@@ -47,7 +47,7 @@
         <div id="windows-tabs-container" class="windows-tabs-container"></div>
     </header>
 
-    <iframe id="glpi-background" src="https//:tickets.sedcauca.gov.co" title="Fondo GLPI" loading="lazy" onerror="handleGlpiError()"></iframe>
+    <iframe id="glpi-background" src="https://tickets.sedcauca.gov.co" title="Fondo GLPI" loading="lazy" onerror="handleGlpiError()"></iframe>
 
 
     <div id="modal" class="fixed inset-0 bg-black bg-opacity-60 flex justify-center items-center z-50 hidden">
@@ -167,7 +167,7 @@
             // Crear un nuevo iframe para probar la conexión
             const testIframe = document.createElement('iframe');
             testIframe.style.display = 'none';
-            testIframe.src = 'https//:tickets.sedcauca.gov.co';
+            testIframe.src = 'https://tickets.sedcauca.gov.co';
             
             testIframe.onload = () => {
                 if (glpiIframe) {
@@ -366,6 +366,9 @@
                 windowState.startLeft = rect.left;
                 windowState.startTop = rect.top;
                 
+                // Agregar clase resizing a la ventana
+                win.classList.add('resizing');
+                
                 // Prevenir selección de texto durante el redimensionamiento
                 document.body.style.userSelect = 'none';
                 document.body.style.pointerEvents = 'none';
@@ -391,7 +394,7 @@
 
         const endInteraction = () => {
             if (windowState.activeWindow) {
-                windowState.activeWindow.classList.remove('dragging');
+                windowState.activeWindow.classList.remove('dragging', 'resizing');
                 windowState.activeWindow.style.transition = '';
                 windowState.activeWindow.style.willChange = 'auto';
                 
@@ -561,9 +564,13 @@
                 }
             }
             
-            windowTab.innerHTML = `<i class="fas ${iconClass}"></i>`;
+            windowTab.innerHTML = `
+                <div class="window-tab-content">
+                    <i class="fas ${iconClass} window-tab-icon"></i>
+                </div>
+            `;
             
-            // Hacer clic en el icono para enfocar la ventana
+            // Hacer clic en la pestaña para enfocar la ventana
             windowTab.onclick = () => {
                 win.style.zIndex = ++zIndexCounter;
                 win.classList.remove('minimized');
@@ -599,6 +606,11 @@
                         win.classList.remove('minimized');
                         win.style.zIndex = ++zIndexCounter;
                         restoreBtn.remove();
+                        // Actualizar pestaña activa
+                        document.querySelectorAll('.window-tab').forEach(tab => {
+                            tab.classList.remove('active');
+                        });
+                        windowTab.classList.add('active');
                     };
                 };
             }
